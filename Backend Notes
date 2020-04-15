@@ -1,0 +1,28 @@
+require() is not part of the standard JavaScript API. But in Node.js, it's a built-in function with a special purpose: to load modules. Modules are a way to split an application into separate files instead of having all of your application in one file. 
+Guna install MySql di dalam backend itu untuk menghubungkan nodeJs dan MySQL sehingga kita bisa ambil data yang di MySQL
+MERN: M:MySQL/MongoDB; E:Express; R:React; N:NodeJS adalah pondasi dari aplikasi yang ingin kita buat
+github.com/mysqljs/mysql
+multipleStatemnts adalah object berisi boolean, true untuk menggunakan double query, tapi sangat rentan dengan SQL injection (cara hacking paling sederhana)
+query 1 statement itu kayak 'select * from users;'
+Backend itu ada 2 server dan database. Server itu llaptop kita/localhost, sementara database itu kayak mysql atau MongoDB
+prinsip backend: debugging menggunakan console.log --> kalo codingan jalan berarti sampe
+background di email itu stylingnya pake inline styling, gabisa pake css atau className
+
+
+pertanyaan: 
+???kenapa kalo menggunakan tanda tanya di variabel sql atau dalam db.query() selalu di taro di parameter ke 2???
+???path di file PhotoControllers line 8 : path ini merujuk ke backend atau database???
+???message di err.send('blablabla') itu udah bisa dimunculin di alert frontend ga???
+???design database???
+???kalo mau kirim email no-reply, bisa gak di object from mail optionsnya kita isi kayak "no-reply.aselole@gmail.com"???
+???insertId di userregister file controller dari mana???s
+
+
+
+
+
+
+
+
+
+
