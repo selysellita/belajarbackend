@@ -17,10 +17,11 @@ app.get('/',(req,res)=>{
     return res.send('<h1> Selamat datang di API Backend JC12 </h1><br><img src="https://i.pinimg.com/originals/49/af/20/49af2056717bdc97ea295b1329ad294b.gif"/> &nbsp; <img src="https://i.pinimg.com/originals/65/89/8d/65898d467acc92f9a377faeff67828c9.gif"/>')
 })
 
-const {UserRouters,PhotoRouters}=require('./routers')
+const {UserRouters,PhotoRouters,MovieRouters}=require('./routers')
 
 app.use('/users',UserRouters)
 app.use('/photo',PhotoRouters)
+app.use('/movie',MovieRouters)
 
 
 

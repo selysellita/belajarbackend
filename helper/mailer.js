@@ -7,7 +7,7 @@ var transporter=nodemailer.createTransport({
         pass:'sjscgdywtrzkxhid'
     },
     tls:{                               //tls itu settingannya, untuk gmail rejectUnathorized:false
-        rejectUnathorized:false
+        rejectUnauthorized:false
     }
 })
 

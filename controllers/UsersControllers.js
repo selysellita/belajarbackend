@@ -1,6 +1,8 @@
 const {db}=require('./../connection')
 const transporter =require('./../helper/mailer')
 const encrypt=require('./../helper/crypto')
+const {createJWTToken}=require('./../helper/jwt')
+
 
 module.exports={                                //isinya adalah objek, dalam hal ini objek yang mengontrol users
     allusers: (req, res)=>{                     //bisa pake :(params)=>{function}
@@ -97,7 +99,7 @@ module.exports={                                //isinya adalah objek, dalam hal
             console.log(result)
             if (err) return res.status(501).send(err)
             if(result.length){
-                return res.status(502).send({message:'username telah dipakai'})
+                return res.status(500).send(message='username telah dipakai')
                 // var sql nanti bisa ditambahkan kalo mau username dan email hanya boleh 1, tapi untuk sekarang pake username aja dulu, karna masih testing, biar email bisa dipake berkali kali
             }else{
                 sql=`insert into users set ?`
@@ -107,8 +109,7 @@ module.exports={                                //isinya adalah objek, dalam hal
                     email
                 }
                 db.query(sql,data,(err,result1)=>{
-                    console.log('register lewat cuy')
-                    console.log(result1)
+                    console.log('register lewat cuy')                    
                     if (err) return res.status(503).send(err)
                     var LinkVerifikasi=`http://localhost:3000/verified?userid=${result1.insertId}&password=${hashpass}` //ini adalah link frontend untuk verifikasi
                     transporter.sendMail({
@@ -122,7 +123,8 @@ module.exports={                                //isinya adalah objek, dalam hal
                         sql=`select * from users where iduser=${result1.insertId}`
                         db.query(sql,(err,result3)=>{
                             if (err) return res.status(505).send(err)
-                            return res.status(200).send(result3[0])
+                            const token=createJWTToken({id:result3[0].iduser,username:result3[0].username})
+                            return res.status(200).send({...result3[0], token})
                         })
                     })
                 })
@@ -132,23 +134,60 @@ module.exports={                                //isinya adalah objek, dalam hal
 
     },
     keeplogin:(req,res)=>{
-        const {iduser}=req.params
-        var sql=`select * from users where iduser=${iduser}`
+        // const {userid}=req.params        //ini kalo make userid
+        // console.log(req.params)
+        console.log(req.user)
+        var sql=`select * from users where iduser=${req.user.id}`
         db.query(sql,(err,result)=>{
             if(err){
                 return res.status(500).send(err)
             }
-            return res.status(200).send(result[0])
+                const token=createJWTToken({id:result[0].iduser,username:result[0].username})
+                return res.status(200).send({...result[0],token})
+        })
+    },
+    userverified:(req,res)=>{
+        const {userid,password}=req.body
+        var obj={
+            verified:1
+        }
+        var sql=`update users set ? where iduser=${userid} and password='${password}'`      //remember! sebelah kiri itu nama kolom, sebelah kanan itu value, password adalah VARCHAR jadi harus selalu pake kutip
+        //pada var sql ini password tidak diencrypt karna password sudah terlebih dahulu di encrypt. Jadi password disini bukan password yang dimasukkan oleh user, melainkan password yang memang sudah di encrypt pada saat user register atau login, jadi tidak perlu diencrypt lagi disini.
+        db.query(sql,obj,(err,result)=>{
+            if(err){
+                return res.status(500).send(err)
+            }
+            sql=`select * from users where iduser=${userid}`
+            db.query(sql,(err,result1)=>{
+                if(err){
+                    return res.status(500).send(err)
+                }
+                return res.status(200).send(result1[0])
+            })
         })
     },
     login:(req,res)=>{
-        const {username,password}=req.query
+        const {password,username}=req.query
         const hashpass=encrypt(password)
-        var sql=`select * from users where username='${username}' and password='${hashpass}'`       
-        db.query(sql,(err,result)=>{        
-            if (err) return res.status(500).send(err)
-            return res.status(200).send(result[0])
+        var sql=`select * from users where username='${username}' and password='${hashpass}'`
+        db.query(sql,(err,result)=>{
+            if(err){
+                return res.status(500).send(err)
+            }
+            if(result.length){
+                const token=createJWTToken({id:result[0].iduser,username:result[0].username})
+                return res.status(200).send({...result[0],token:token})     //jika user ada, pertama objek result[0] dibuuka dengan ... untuk menambahkan objek token ke dalamnya
+            }else{
+                return res.status(500).send({message:'user nggak ada'})     //jika user nggak ada
+            }
         })
+    },
+    generatetoken:(req,res)=>{              //generatetoken ini akan mengubah objek menjadi string
+        const token=createJWTToken({id:1,username:'dino'})
+        res.status(200).send({token})
+    },
+    tokenberubah:(req,res)=>{
+        console.log(req.user)
+        res.send({data:req.user})
     }
-
 }
